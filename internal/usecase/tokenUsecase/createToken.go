@@ -1,7 +1,7 @@
 package tokenusecase
 
 import (
-	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/CompanyEntitie"
+	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/companyEntitie"
 	tokenentitie "github.com/aurindo10/invoice_issuer/internal/entities/tokenEntitie"
 )
 

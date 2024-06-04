@@ -3,7 +3,7 @@ package tokenrepository
 import (
 	"time"
 
-	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/CompanyEntitie"
+	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/companyEntitie"
 	tokenentitie "github.com/aurindo10/invoice_issuer/internal/entities/tokenEntitie"
 	"github.com/aurindo10/invoice_issuer/pkg/utils"
 	"github.com/golang-jwt/jwt"

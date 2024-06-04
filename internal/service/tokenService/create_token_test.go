@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/CompanyEntitie"
+	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/companyEntitie"
 )
 
 func TestCreateTokenService(t *testing.T) {
