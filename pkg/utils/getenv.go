@@ -15,6 +15,7 @@ func LoadEnv() {
 }
 
 func GetEnv(key string, defaultValue string) string {
+	LoadEnv()
 	value, exists := os.LookupEnv(key)
 	if !exists {
 		return defaultValue
