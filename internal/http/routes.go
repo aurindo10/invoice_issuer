@@ -1,6 +1,12 @@
 package server
 
-// func AddRoutes(c *http.ServeMux) {
+import (
+	"net/http"
 
-// 	c.Handle("POST /get-token", )
-// }
+	"github.com/aurindo10/invoice_issuer/internal/http/handlers"
+	"github.com/aurindo10/invoice_issuer/internal/http/middlewares"
+)
+
+func AddRoutes(c *http.ServeMux) {
+	c.Handle("POST /get-token", middlewares.InternalAcessMiddleware(handlers.GetTokenHandler()))
+}

@@ -1,10 +1,11 @@
-package tokenservice
+package tokenservice_test
 
 import (
 	"testing"
 	"time"
 
 	companyentitie "github.com/aurindo10/invoice_issuer/internal/entities/companyEntitie"
+	tokenservice "github.com/aurindo10/invoice_issuer/internal/service/tokenService"
 )
 
 func TestCreateTokenService(t *testing.T) {
@@ -14,7 +15,7 @@ func TestCreateTokenService(t *testing.T) {
 		Owner:          "KJSLKDJSKDDKSDJSDIKDJ",
 		FoundationDate: time.Now(),
 	}
-	service := NewCreateTokenService(company)
+	service := tokenservice.NewCreateTokenService(company)
 	res, error := service.CreateTokenService()
 	if error != nil {
 		t.Errorf("expected no error, got %v", error)
