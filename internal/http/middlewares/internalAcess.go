@@ -15,7 +15,7 @@ func InternalAcessMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer")
-		secretKey := utils.GetEnv("SECRETKEY", "KJKJSDNSAJHLKASLKDJASHDKJ")
+		secretKey := utils.GetEnv("SECRETKEY", "none")
 		if secretKey != tokenString {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
