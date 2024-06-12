@@ -9,13 +9,19 @@ import (
 
 type CreateAndValidateNFe struct {
 }
+type CreateAndValidateNFeServiceParams struct {
+	Id          *string
+	ClientInfo  *nfeentitie.Dest
+	CompanyInfo *nfeentitie.Emit
+}
 
-func (c *CreateAndValidateNFe) CreateAndValidateNFeService(id string) error {
+func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateNFeServiceParams) error {
+
 	nfe := nfeentitie.NFe{
 		XMLName: xml.Name{Space: "http://www.portalfiscal.inf.br/nfe", Local: "NFe"},
 		InfNFe: nfeentitie.InfNFe{
 			Versao: "4.00",
-			Id:     id,
+			Id:     *p.Id,
 			Pag: nfeentitie.Pag{
 				XMLName: xml.Name{Local: "pag"},
 				DetPag: []nfeentitie.DetPag{
@@ -27,22 +33,7 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(id string) error {
 					},
 				},
 			},
-			Dest: nfeentitie.Dest{
-				CNPJ:      "43150071000183",
-				IndIEDest: "1",
-				EnderDest: nfeentitie.EnderDest{
-					XLgr:    "PRAÇA 1 DE MAIO",
-					Nro:     "18",
-					XBairro: "CENTRO",
-					CMun:    "2110708",
-					XMun:    "SAO DOMINGOS DO MARANHAO",
-					UF:      "MA",
-					CEP:     "65790000",
-					CPais:   "1058",
-					XPais:   "BRASIL",
-					Fone:    "99992030680",
-				},
-			},
+			Dest: *p.ClientInfo,
 			Ide: nfeentitie.Ide{
 				CUF:      "21",
 				CNF:      "14920240",
@@ -62,28 +53,9 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(id string) error {
 				IndFinal: "1",
 				IndPres:  "1",
 				ProcEmi:  "0",
-				VerProc:  "VHSYS",
+				VerProc:  "Sol",
 			},
-			Emit: nfeentitie.Emit{
-				CNPJ:  "43150071000183",
-				XNome: "SOL MATERIAIS ELETRICOS LTDA",
-				XFant: "SOL MATERIAIS",
-				EnderEmit: nfeentitie.EnderEmit{
-					XLgr:    "PRAÇA 1 DE MAIO",
-					Nro:     "18",
-					XCpl:    "SALA B",
-					XBairro: "CENTRO",
-					CMun:    "2110708",
-					XMun:    "SAO DOMINGOS DO MARANHAO",
-					UF:      "MA",
-					CEP:     "65790000",
-					CPais:   "1058",
-					XPais:   "BRASIL",
-					Fone:    "99992030680",
-				},
-				IE:  "127211047",
-				CRT: "1",
-			},
+			Emit: *p.CompanyInfo,
 			Det: []nfeentitie.Det{
 				{
 					NItem: "1",
