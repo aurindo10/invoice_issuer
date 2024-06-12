@@ -10,12 +10,12 @@ import (
 type CreateAndValidateNFe struct {
 }
 
-func (c *CreateAndValidateNFe) CreateAndValidateNFeService() error {
+func (c *CreateAndValidateNFe) CreateAndValidateNFeService(id string) error {
 	nfe := nfeentitie.NFe{
 		XMLName: xml.Name{Space: "http://www.portalfiscal.inf.br/nfe", Local: "NFe"},
 		InfNFe: nfeentitie.InfNFe{
 			Versao: "4.00",
-			Id:     "NFe21240543150071000183650010000005861149202408",
+			Id:     id,
 			Pag: nfeentitie.Pag{
 				XMLName: xml.Name{Local: "pag"},
 				DetPag: []nfeentitie.DetPag{

@@ -42,7 +42,6 @@ func (c *IdRepository) GetAcessKey(lastNumber *int64, cnf *string, info *nfeenti
 	now := time.Now()
 	year := now.Year() % 100
 	month := int(now.Month())
-
 	builder.WriteString(info.Cuf)                  // Código da UF
 	builder.WriteString(fmt.Sprintf("%02d", year)) // Ano
 	builder.WriteString(fmt.Sprintf("%02d", month))
@@ -83,6 +82,7 @@ func (c *IdRepository) GetcDv(accessKey *string) (*string, error) {
 
 func (c *IdRepository) GetFullAcessKey(acessKey *string, Dv *string) (*string, error) {
 	var builder strings.Builder
+	builder.WriteString("NFe")
 	builder.WriteString(*acessKey)
 	builder.WriteString(*Dv)
 	fullAcessKey := builder.String()
