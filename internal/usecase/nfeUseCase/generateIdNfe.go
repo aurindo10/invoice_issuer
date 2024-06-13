@@ -7,15 +7,11 @@ type GenerateID struct {
 }
 
 func (c *GenerateID) Execute(p *nfeentitie.NfeInfo) (*string, error) {
-	lastNumber, error := c.repository.GetLastNumbernNF(&p.Cnpj)
-	if error != nil {
-		return nil, error
-	}
 	cnF, error := c.repository.GetCnf()
 	if error != nil {
 		return nil, error
 	}
-	acessKey, error := c.repository.GetAcessKey(lastNumber, cnF, p)
+	acessKey, error := c.repository.GetAcessKey(&p.LastNumber, cnF, p)
 	if error != nil {
 		return nil, error
 	}

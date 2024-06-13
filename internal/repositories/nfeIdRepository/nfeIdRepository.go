@@ -1,7 +1,6 @@
 package nfeidrepository
 
 import (
-	"database/sql"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -12,7 +11,6 @@ import (
 )
 
 type IdRepository struct {
-	db *sql.DB
 }
 
 func (c *IdRepository) GetCnf() (*string, error) {
@@ -21,22 +19,7 @@ func (c *IdRepository) GetCnf() (*string, error) {
 	cnf := strconv.FormatInt(n, 10)
 	return &cnf, nil
 }
-func (c *IdRepository) GetLastNumbernNF(cnpj *string) (*int64, error) {
-	var number int64 = 0
-	rows, err := c.db.Query("SELECT nfeNumber FROM nfe WHERE orgId = ? ORDER BY nfeNumber DESC LIMIT 1", cnpj)
-	if err != nil {
-		fmt.Println("Erro ao executar query:", err)
-		return nil, err
-	}
-	defer rows.Close()
-	if rows.Next() {
-		if err := rows.Scan(&number); err != nil {
-			return nil, err
-		}
-	}
-	number = number + 1
-	return &number, nil
-}
+
 func (c *IdRepository) GetAcessKey(lastNumber *int64, cnf *string, info *nfeentitie.NfeInfo) (*string, error) {
 	var builder strings.Builder
 	now := time.Now()
@@ -89,8 +72,6 @@ func (c *IdRepository) GetFullAcessKey(acessKey *string, Dv *string) (*string, e
 	return &fullAcessKey, nil
 }
 
-func NewIdRepository(db *sql.DB) *IdRepository {
-	return &IdRepository{
-		db: db,
-	}
+func NewIdRepository() *IdRepository {
+	return &IdRepository{}
 }
