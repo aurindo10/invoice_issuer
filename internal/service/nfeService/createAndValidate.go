@@ -1,7 +1,11 @@
 package nfeservice
 
 import (
+	"bytes"
 	"encoding/xml"
+	"fmt"
+	"io"
+	"net/http"
 	"time"
 
 	nfeentitie "github.com/aurindo10/invoice_issuer/internal/entities/nfeEntitie"
@@ -11,6 +15,7 @@ import (
 
 type CreateAndValidateNFe struct {
 }
+
 type CreateAndValidateNFeServiceParams struct {
 	Id          *string              `json:"id"`
 	ClientInfo  *nfeentitie.Dest     `json:"client_info"`
@@ -85,6 +90,67 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	if err != nil {
 		return err
 	}
+
+	// Enviar para a Receita Federal
+	err = c.SendNFeToReceitaFederal(*xmlB)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
+	// Configuração do cliente HTTP
+	client := &http.Client{
+		Timeout: time.Second * 30,
+	}
+
+	// URL do serviço de homologação da Receita Federal (exemplo usando SVRS)
+	url := "https://hom.sefazvirtual.fazenda.gov.br/NFeAutorizacao4/NFeAutorizacao4.asmx"
+
+	// Corpo da requisição SOAP
+	soapEnvelope := `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfe="http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcao2">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <nfe:nfeDadosMsg>
+         <![CDATA[` + string(xmlData) + `]]>
+      </nfe:nfeDadosMsg>
+   </soapenv:Body>
+</soapenv:Envelope>`
+
+	// Criação da requisição HTTP
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(soapEnvelope)))
+	if err != nil {
+		return err
+	}
+
+	// Configuração dos cabeçalhos da requisição
+	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
+	req.Header.Set("SOAPAction", "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcao2/nfeRecepcaoLote2")
+
+	// Envio da requisição
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Tratamento da resposta
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("receita federal returned status: %v", resp.Status)
+	}
+
+	// Leitura da resposta
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	// Exemplo de tratamento da resposta
+	fmt.Printf("Receita Federal response: %s\n", string(body))
+
+	// Processamento adicional da resposta conforme necessário
 
 	return nil
 }
