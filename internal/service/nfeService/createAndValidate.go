@@ -137,6 +137,7 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 		Transport: &http.Transport{
 			TLSClientConfig: &tlsConfig,
 		},
+		Timeout: defaultTimeout,
 	}
 
 	// URL do serviço de homologação da Receita Federal (exemplo usando SVRS)
@@ -144,20 +145,18 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 
 	// Corpo da requisição SOAP
 	soapEnvelope := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
-<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-                 xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-  <soap12:Header>
-    <nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/sce/wsdl/NfeRecepcao2">
-      <versaoDados>4.00</versaoDados>
-      <cUF>35</cUF>
-    </nfeCabecMsg>
-  </soap12:Header>
-  <soap12:Body>
-    <nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeRecepcao2">
-      <![CDATA[%s]]>
-    </nfeDadosMsg>
-  </soap12:Body>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+<soap12:Header>
+<nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeAutorizacao4">
+<versaoDados>4.00</versaoDados>
+<cUF>35</cUF> <!-- Ajuste o código da UF conforme necessário -->
+</nfeCabecMsg>
+</soap12:Header>
+<soap12:Body>
+<nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeAutorizacao4">
+<![CDATA[%s]]>
+</nfeDadosMsg>
+</soap12:Body>
 </soap12:Envelope>`, xmlData)
 
 	// Criação da requisição HTTP
@@ -167,7 +166,7 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 	}
 
 	// Configuração dos cabeçalhos da requisição
-	req.Header.Set("Content-Type", "application/soap+xml; charset=utf-8")
+	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
 	req.Header.Set("SOAPAction", "http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4/nfeAutorizacaoLote")
 
 	// Envio da requisição
@@ -183,6 +182,7 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 		return fmt.Errorf("failed to read response body: %v", err)
 	}
 	println(string(body))
+	fmt.Println(string(body))
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("receita federal returned status: %v", resp.Status)
 	}
