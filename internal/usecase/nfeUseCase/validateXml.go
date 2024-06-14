@@ -24,7 +24,6 @@ func (c *ValidateXml) Validate() (*[]byte, error) {
 	if err != nil {
 		switch e := err.(type) {
 		case xsdvalidate.ValidationError:
-			fmt.Println(e)
 			fmt.Printf("Error in line: %d\n", e.Errors[0].Line)
 			fmt.Println(e.Errors[0].Message)
 			return nil, fmt.Errorf(e.Errors[0].Message)

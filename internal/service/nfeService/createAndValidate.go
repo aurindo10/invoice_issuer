@@ -2,6 +2,8 @@ package nfeservice
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -60,10 +62,10 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	}
 	repo := nfeidrepository.NewIdRepository()
 	generateNfeIduseCase := nfeusecase.NewGenerateID(repo)
-	nfeId, error := generateNfeIduseCase.Execute(nfeInfo)
+	nfeId, err := generateNfeIduseCase.Execute(nfeInfo)
 	nfe.InfNFe.Id = *nfeId
-	if error != nil {
-		return error
+	if err != nil {
+		return err
 	}
 	crateXmlUseCase := nfeusecase.NewXmlNfe(nfe)
 	xmlData, err := crateXmlUseCase.Generate()
@@ -100,24 +102,63 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	return nil
 }
 
+const defaultTimeout = 15 * time.Second
+const defaultUserAgent = "GoNFe/0.1"
+
 func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
+	// Carregar o certificado e a chave privada
+	cert, err := tls.LoadX509KeyPair("client.pem", "key.pem")
+	if err != nil {
+		return fmt.Errorf("failed to load certificate: %v", err)
+	}
+
+	// Configuração do pool de CAs
+	caCertPool, err := x509.SystemCertPool()
+	if err != nil {
+		return fmt.Errorf("failed to load system cert pool: %v", err)
+	}
+	if caCertPool == nil {
+		caCertPool = x509.NewCertPool()
+	}
+
+	// Configuração do TLS com GetClientCertificate
+	tlsConfig := tls.Config{
+		Certificates:  []tls.Certificate{cert},
+		RootCAs:       caCertPool,
+		Renegotiation: tls.RenegotiateOnceAsClient,
+		GetClientCertificate: func(info *tls.CertificateRequestInfo) (*tls.Certificate, error) {
+			return &cert, nil
+		},
+		InsecureSkipVerify: true,
+	}
+
 	// Configuração do cliente HTTP
-	client := &http.Client{
-		Timeout: time.Second * 30,
+	client := http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tlsConfig,
+		},
 	}
 
 	// URL do serviço de homologação da Receita Federal (exemplo usando SVRS)
-	url := "https://hom.sefazvirtual.fazenda.gov.br/NFeAutorizacao4/NFeAutorizacao4.asmx"
+	url := "https://nfe-homologacao.svrs.rs.gov.br/ws/NfeAutorizacao/NFeAutorizacao4.asmx"
 
 	// Corpo da requisição SOAP
-	soapEnvelope := `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfe="http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcao2">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <nfe:nfeDadosMsg>
-         <![CDATA[` + string(xmlData) + `]]>
-      </nfe:nfeDadosMsg>
-   </soapenv:Body>
-</soapenv:Envelope>`
+	soapEnvelope := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+                 xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Header>
+    <nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/sce/wsdl/NfeRecepcao2">
+      <versaoDados>4.00</versaoDados>
+      <cUF>35</cUF>
+    </nfeCabecMsg>
+  </soap12:Header>
+  <soap12:Body>
+    <nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeRecepcao2">
+      <![CDATA[%s]]>
+    </nfeDadosMsg>
+  </soap12:Body>
+</soap12:Envelope>`, xmlData)
 
 	// Criação da requisição HTTP
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(soapEnvelope)))
@@ -126,25 +167,24 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 	}
 
 	// Configuração dos cabeçalhos da requisição
-	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	req.Header.Set("SOAPAction", "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcao2/nfeRecepcaoLote2")
+	req.Header.Set("Content-Type", "application/soap+xml; charset=utf-8")
+	req.Header.Set("SOAPAction", "http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4/nfeAutorizacaoLote")
 
 	// Envio da requisição
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	// Tratamento da resposta
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("receita federal returned status: %v", resp.Status)
-	}
-
-	// Leitura da resposta
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read response body: %v", err)
+	}
+	println(string(body))
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("receita federal returned status: %v", resp.Status)
 	}
 
 	// Exemplo de tratamento da resposta
