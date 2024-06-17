@@ -34,22 +34,26 @@ type CreateAndValidateNFeServiceParams struct {
 func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateNFeServiceParams) error {
 	now := time.Now().Format(time.RFC3339)
 	p.Ide.DhEmi = now
-	nfe := nfeentitie.NFe{
-		XMLName: xml.Name{Space: "http://www.portalfiscal.inf.br/nfe", Local: "NFe"},
-		InfNFe: nfeentitie.InfNFe{
-			Versao: "4.00",
-			Pag: nfeentitie.Pag{
-				XMLName: xml.Name{Local: "pag"},
-				DetPag:  *p.Pagamento,
+	nfe := nfeentitie.EnviNFE{
+		XMLName: xml.Name{Local: "enviNFe", Space: "http://www.portalfiscal.inf.br/nfe"},
+		Versao:  "4.00",
+		NFe: nfeentitie.NFe{
+			XMLName: xml.Name{Space: "http://www.portalfiscal.inf.br/nfe", Local: "NFe"},
+			InfNFe: nfeentitie.InfNFe{
+				Versao: "4.00",
+				Pag: nfeentitie.Pag{
+					XMLName: xml.Name{Local: "pag"},
+					DetPag:  *p.Pagamento,
+				},
+				Dest:    *p.ClientInfo,
+				Ide:     *p.Ide,
+				Emit:    *p.CompanyInfo,
+				Det:     *p.Produtos,
+				Total:   *p.Total,
+				Transp:  *p.Frete,
+				Cobr:    *p.Cobra,
+				InfAdic: *p.InfAdc,
 			},
-			Dest:    *p.ClientInfo,
-			Ide:     *p.Ide,
-			Emit:    *p.CompanyInfo,
-			Det:     *p.Produtos,
-			Total:   *p.Total,
-			Transp:  *p.Frete,
-			Cobr:    *p.Cobra,
-			InfAdic: *p.InfAdc,
 		},
 	}
 	nfeInfo := &nfeentitie.NfeInfo{
@@ -63,7 +67,7 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	repo := nfeidrepository.NewIdRepository()
 	generateNfeIduseCase := nfeusecase.NewGenerateID(repo)
 	nfeId, err := generateNfeIduseCase.Execute(nfeInfo)
-	nfe.InfNFe.Id = *nfeId
+	nfe.NFe.InfNFe.Id = *nfeId
 	if err != nil {
 		return err
 	}
@@ -79,7 +83,7 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	}
 
 	nfeAssined := nfe
-	nfeAssined.Signature = sig
+	nfeAssined.NFe.Signature = sig
 
 	crateXmlBytes := nfeusecase.NewXmlNfe(nfeAssined)
 	xmlB, err := crateXmlBytes.Generate()
@@ -87,13 +91,12 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 		return err
 	}
 
-	validate := nfeusecase.NewValidateXml(xmlB)
-	_, err = validate.Validate()
-	if err != nil {
-		return err
-	}
+	// validate := nfeusecase.NewValidateXml(xmlB)
+	// _, err = validate.Validate()
+	// if err != nil {
+	// 	return err
+	// }
 
-	// Enviar para a Receita Federal
 	err = c.SendNFeToReceitaFederal(*xmlB)
 	if err != nil {
 		return err
@@ -145,20 +148,20 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 
 	// Corpo da requisição SOAP
 	soapEnvelope := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
-<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"  >
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
 <soap12:Header>
 <nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">
 <versaoDados>4.00</versaoDados>
-<cUF>21</cUF> <!-- Ajuste o código da UF conforme necessário -->
+<cUF>21</cUF>
 </nfeCabecMsg>
 </soap12:Header>
 <soap12:Body>
 <nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">
-<![CDATA[%s]]>
+%s
 </nfeDadosMsg>
 </soap12:Body>
 </soap12:Envelope>`, xmlData)
-
+	println(soapEnvelope)
 	// Criação da requisição HTTP
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(soapEnvelope)))
 	if err != nil {

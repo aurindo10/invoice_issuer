@@ -18,10 +18,6 @@ func (c *XmlNfe) Generate() (*[]byte, error) {
 		return nil, err
 	}
 
-	// Imprimir o XML gerado
-	fmt.Println("XML Gerado:")
-	fmt.Println(string(encoded))
-
 	return &encoded, nil
 }
 

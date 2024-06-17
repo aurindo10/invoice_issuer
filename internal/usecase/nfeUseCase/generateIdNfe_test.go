@@ -12,7 +12,7 @@ func TestGenerateIdSucess(t *testing.T) {
 	repo := nfeidrepository.NewIdRepository()
 	useCase := nfeusecase.NewGenerateID(repo)
 	params := nfeentitie.NfeInfo{
-		Cuf:        "35",             // Estado (por exemplo, São Paulo)
+		Cuf:        "21",             // Estado (por exemplo, São Paulo)
 		Cnpj:       "12345678000195", // CNPJ
 		Mod:        "55",             // Modelo (55 por padrão)
 		Serie:      "1",              // Série (1 ou 2)
