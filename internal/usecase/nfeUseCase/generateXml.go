@@ -17,8 +17,14 @@ func (c *XmlNfe) Generate() (*[]byte, error) {
 		fmt.Println("Erro ao gerar o XML:", err)
 		return nil, err
 	}
+
+	// Imprimir o XML gerado
+	fmt.Println("XML Gerado:")
+	fmt.Println(string(encoded))
+
 	return &encoded, nil
 }
+
 func NewXmlNfe(c nfeentitie.NFe) *XmlNfe {
 	return &XmlNfe{
 		NFe: c,

@@ -53,7 +53,7 @@ func TestCreateXmlAndValidateService(t *testing.T) {
 			CRT: "3",
 		},
 		Ide: &nfeentitie.Ide{
-			CUF:      "35",
+			CUF:      "21",
 			CNF:      "12345678",
 			NatOp:    "Venda",
 			Mod:      "55",

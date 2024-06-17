@@ -145,15 +145,15 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 
 	// Corpo da requisição SOAP
 	soapEnvelope := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
-<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"  >
 <soap12:Header>
-<nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeAutorizacao4">
+<nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">
 <versaoDados>4.00</versaoDados>
-<cUF>35</cUF> <!-- Ajuste o código da UF conforme necessário -->
+<cUF>21</cUF> <!-- Ajuste o código da UF conforme necessário -->
 </nfeCabecMsg>
 </soap12:Header>
 <soap12:Body>
-<nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeAutorizacao4">
+<nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">
 <![CDATA[%s]]>
 </nfeDadosMsg>
 </soap12:Body>
