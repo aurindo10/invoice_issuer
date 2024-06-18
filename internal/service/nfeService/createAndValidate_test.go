@@ -237,7 +237,7 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 			"crt": "3"
 		},
 		"ide": {
-			"c_uf": "35",
+			"c_uf": "21",
 			"c_nf": "12345678",
 			"nat_op": "Venda",
 			"mod": "55",
