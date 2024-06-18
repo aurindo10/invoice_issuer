@@ -90,6 +90,7 @@ func signXML(privateKey *rsa.PrivateKey, data []byte) (string, error) {
 
 	return base64.StdEncoding.EncodeToString(signature), nil
 }
+
 func canonicalizeXML(xmlContent []byte) ([]byte, error) {
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(xmlContent); err != nil {
@@ -99,7 +100,8 @@ func canonicalizeXML(xmlContent []byte) ([]byte, error) {
 	doc.Indent(2)
 	return doc.WriteToBytes()
 }
-func SignXML(pfxPath string, password string, xmlContent []byte) ([]byte, *nfeentitie.Signature, error) {
+
+func SignXML(pfxPath string, password string, xmlContent []byte, id string) ([]byte, *nfeentitie.Signature, error) {
 	certOutPath := "client.pem"
 	keyOutPath := "key.pem"
 
@@ -128,20 +130,21 @@ func SignXML(pfxPath string, password string, xmlContent []byte) ([]byte, *nfeen
 		return nil, nil, err
 	}
 
-	signatureValue, err := signXML(privateKey, xmlContent)
+	canonicalXML, err := canonicalizeXML(xmlContent)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	digest := sha1.New()
+	digest.Write(canonicalXML)
+	digestValue := base64.StdEncoding.EncodeToString(digest.Sum(nil))
+
+	signatureValue, err := signXML(privateKey, canonicalXML)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	certBase64 := base64.StdEncoding.EncodeToString(cert.Raw)
-	canonicalXML, err := canonicalizeXML(xmlContent)
-	if err != nil {
-		return nil, nil, err
-	}
-	digest := sha1.New()
-	digest.Write(canonicalXML)
-	digestValue := base64.StdEncoding.EncodeToString(digest.Sum(nil))
-
 	sig := nfeentitie.Signature{
 		XMLName: xml.Name{Local: "Signature"},
 		SignedInfo: nfeentitie.SignedInfo{
@@ -152,7 +155,7 @@ func SignXML(pfxPath string, password string, xmlContent []byte) ([]byte, *nfeen
 				Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
 			},
 			Reference: nfeentitie.Reference{
-				URI: "#reference",
+				URI: "#" + id,
 				Transforms: nfeentitie.Transforms{
 					Transform: []nfeentitie.Transform{
 						{Algorithm: "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"},
@@ -173,10 +176,12 @@ func SignXML(pfxPath string, password string, xmlContent []byte) ([]byte, *nfeen
 		},
 	}
 
+	signedXML := append(xmlContent, []byte(xml.Header)...)
+	signedXML = append(signedXML, canonicalXML...)
 	output, err := xml.MarshalIndent(sig, "", "  ")
 	if err != nil {
 		return nil, nil, err
 	}
 	fmt.Println(string(output))
-	return output, &sig, nil
+	return signedXML, &sig, nil
 }

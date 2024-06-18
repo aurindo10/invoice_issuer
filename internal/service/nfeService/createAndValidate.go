@@ -76,21 +76,23 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 		IndSinc: "1",
 		NFe:     nfe,
 	}
+
 	xmlData, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
 		return err
 	}
-	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData)
+	cleanedXMLData := cleanXMLData(string(*xmlData))
+	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", []byte(cleanedXMLData), *nfeId)
 	if err != nil {
 		return err
 	}
 
 	EnviNFe.NFe.Signature = sig
-	xmlB, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
+	signedXml, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
 		return err
 	}
-	println("oiiii", string(*xmlB))
+	println("oiiii", string(*signedXml))
 	pureXml, err := nfeusecase.GenerateBytesFromXml(EnviNFe.NFe)
 	if err != nil {
 		println(err)
@@ -103,7 +105,7 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	}
 
 	// Enviar para a Receita Federal
-	err = c.SendNFeToReceitaFederal(*xmlB)
+	err = c.SendNFeToReceitaFederal(*signedXml)
 	if err != nil {
 		return err
 	}
