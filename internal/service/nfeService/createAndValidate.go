@@ -61,6 +61,7 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 		LastNumber: 1,
 		TpEmis:     p.Ide.TpEmis,
 	}
+
 	repo := nfeidrepository.NewIdRepository()
 	generateNfeIduseCase := nfeusecase.NewGenerateID(repo)
 	nfeId, err := generateNfeIduseCase.Execute(nfeInfo)
@@ -68,28 +69,34 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	if err != nil {
 		return err
 	}
-	crateXmlUseCase := nfeusecase.NewXmlNfe(nfe)
-	xmlData, err := crateXmlUseCase.Generate()
+	EnviNFe := nfeentitie.EnviNFe{
+		XMLName: xml.Name{Space: "http://www.portalfiscal.inf.br/nfe", Local: "enviNFe"},
+		Versao:  "4.00",
+		IdLote:  "1234",
+		IndSinc: "1",
+		NFe:     nfe,
+	}
+	xmlData, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
 		return err
 	}
-
 	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData)
 	if err != nil {
 		return err
 	}
 
-	nfeAssined := nfe
-	nfeAssined.Signature = sig
-
-	crateXmlBytes := nfeusecase.NewXmlNfe(nfeAssined)
-
-	xmlB, err := crateXmlBytes.Generate()
+	EnviNFe.NFe.Signature = sig
+	xmlB, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
 		return err
 	}
-
-	validate := nfeusecase.NewValidateXml(xmlB)
+	println("oiiii", string(*xmlB))
+	pureXml, err := nfeusecase.GenerateBytesFromXml(EnviNFe.NFe)
+	if err != nil {
+		println(err)
+		return err
+	}
+	validate := nfeusecase.NewValidateXml(pureXml)
 	_, err = validate.Validate()
 	if err != nil {
 		return err
@@ -156,9 +163,7 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 </nfeCabecMsg>
 </soap12:Header>
 <soap12:Body>
-<nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">
-<enviNFe xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00"><idLote>1234</idLote><indSinc>1</indSinc>%s</enviNFe>
-</nfeDadosMsg>
+<nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">%s</nfeDadosMsg>
 </soap12:Body>
 </soap12:Envelope>`, xmlData)
 	cleanedXMLData := cleanXMLData(string(soapEnvelope))

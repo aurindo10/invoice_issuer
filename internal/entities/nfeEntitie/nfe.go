@@ -3,6 +3,15 @@ package nfeentitie
 import "encoding/xml"
 
 // NFe é a estrutura principal da Nota Fiscal Eletrônica
+
+type EnviNFe struct {
+	XMLName xml.Name `xml:"http://www.portalfiscal.inf.br/nfe enviNFe" json:"xml_name"`
+	Versao  string   `xml:"versao,attr"`
+	IdLote  string   `xml:"idLote"`
+	IndSinc string   `xml:"indSinc"`
+	NFe     NFe      `xml:"NFe"`
+}
+
 type NFe struct {
 	XMLName   xml.Name   `xml:"http://www.portalfiscal.inf.br/nfe NFe" json:"xml_name"`
 	InfNFe    InfNFe     `xml:"infNFe" json:"inf_nfe"`
