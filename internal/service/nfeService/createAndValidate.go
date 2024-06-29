@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	nfeentitie "github.com/aurindo10/invoice_issuer/internal/entities/nfeEntitie"
@@ -81,8 +80,8 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	if err != nil {
 		return err
 	}
-	cleanedXMLData := cleanXMLData(string(*xmlData))
-	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", []byte(cleanedXMLData), *nfeId)
+	// cleanedXMLData := cleanXMLData(string(*xmlData))
+	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, *nfeId)
 	if err != nil {
 		return err
 	}
@@ -168,10 +167,9 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 <nfeDadosMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NFeAutorizacao4">%s</nfeDadosMsg>
 </soap12:Body>
 </soap12:Envelope>`, xmlData)
-	cleanedXMLData := cleanXMLData(string(soapEnvelope))
 
 	// Criação da requisição HTTP
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(cleanedXMLData)))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(soapEnvelope)))
 	if err != nil {
 		return err
 	}
@@ -208,14 +206,6 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 	return nil
 }
 
-func cleanXMLData(xmlData string) string {
-	// Remove line-feed, carriage return, tab and leading/trailing spaces
-	xmlData = strings.ReplaceAll(xmlData, "\n", "")
-	xmlData = strings.ReplaceAll(xmlData, "\r", "")
-	xmlData = strings.ReplaceAll(xmlData, "\t", "")
-	xmlData = strings.ReplaceAll(xmlData, "  ", "") // Remove double spaces
-	return strings.TrimSpace(xmlData)
-}
 func NewCreateAndValidateNFe() *CreateAndValidateNFe {
 	return &CreateAndValidateNFe{}
 }

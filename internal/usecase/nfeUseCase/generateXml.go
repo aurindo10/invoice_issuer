@@ -6,7 +6,7 @@ import (
 )
 
 func GenerateBytesFromXml(p any) (*[]byte, error) {
-	encoded, err := xml.MarshalIndent(p, "", "  ")
+	encoded, err := xml.Marshal(p)
 	if err != nil {
 		fmt.Println("Erro ao gerar o XML:", err)
 		return nil, err

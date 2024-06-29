@@ -104,7 +104,6 @@ func canonicalizeXML(xmlContent []byte) ([]byte, error) {
 func SignXML(pfxPath string, password string, xmlContent []byte, id string) ([]byte, *nfeentitie.Signature, error) {
 	certOutPath := "client.pem"
 	keyOutPath := "key.pem"
-
 	err := extractPEMFromPFX(pfxPath, password, certOutPath, keyOutPath)
 	if err != nil {
 		return nil, nil, err
