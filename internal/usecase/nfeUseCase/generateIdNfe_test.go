@@ -19,7 +19,7 @@ func TestGenerateIdSucess(t *testing.T) {
 		TpEmis:     "1",
 		LastNumber: 1,
 	}
-	res, error := useCase.Execute(&params)
+	res, _, _, error := useCase.Execute(&params)
 	if error != nil {
 		t.Fatalf("Houve algum erro: %v", error)
 	}

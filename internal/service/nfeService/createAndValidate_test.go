@@ -16,7 +16,7 @@ func TestCreateXmlAndValidateService(t *testing.T) {
 	// Instância dos parâmetros
 	params := nfeservice.CreateAndValidateNFeServiceParams{
 		ClientInfo: &nfeentitie.Dest{
-			CNPJ:  "12345678901234",
+			CNPJ:  "12494754000124",
 			XNome: "Client Name",
 			EnderDest: nfeentitie.EnderDest{
 				XLgr:    "Street Name",
@@ -33,7 +33,7 @@ func TestCreateXmlAndValidateService(t *testing.T) {
 			IndIEDest: "1",
 		},
 		CompanyInfo: &nfeentitie.Emit{
-			CNPJ:  "98765432109876",
+			CNPJ:  "12494754000124",
 			XNome: "Company Name",
 			XFant: "Company Fantasy Name",
 			EnderEmit: nfeentitie.EnderEmit{
@@ -200,15 +200,15 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 	// JSON dos parâmetros
 	jsonParams := `{
 		"client_info": {
-			"cnpj": "12345678901234",
+			"cnpj": "31918175000106",
 			"x_nome": "Client Name",
 			"ender_dest": {
 				"x_lgr": "Street Name",
 				"nro": "123",
 				"x_bairro": "Neighborhood",
-				"c_mun": "1234567",
+				"c_mun": "2111002",
 				"x_mun": "City Name",
-				"uf": "SP",
+				"uf": "MA",
 				"cep": "12345678",
 				"c_pais": "1058",
 				"x_pais": "Brasil",
@@ -217,7 +217,7 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 			"ind_ie_dest": "1"
 		},
 		"company_info": {
-			"cnpj": "98765432109876",
+			"cnpj": "12494754000124",
 			"x_nome": "Company Name",
 			"x_fant": "Company Fantasy Name",
 			"ender_emit": {
@@ -225,9 +225,9 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 				"nro": "456",
 				"x_cpl": "Complement",
 				"x_bairro": "Company Neighborhood",
-				"c_mun": "7654321",
+				"c_mun": "2111002",
 				"x_mun": "Company City",
-				"uf": "RJ",
+				"uf": "MA",
 				"cep": "87654321",
 				"c_pais": "1058",
 				"x_pais": "Brasil",
@@ -238,15 +238,14 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 		},
 		"ide": {
 			"c_uf": "21",
-			"c_nf": "12345678",
 			"nat_op": "Venda",
 			"mod": "55",
 			"serie": "1",
-			"nf_num": "1234",
 			"dh_emi": "2024-06-13T14:00:00-03:00",
 			"tp_nf": "1",
 			"id_dest": "1",
-			"c_mun_fg": "3550308",
+			"nf_num":"1",
+			"c_mun_fg": "2111002",
 			"tp_imp": "1",
 			"tp_emis": "1",
 			"c_dv": "1",

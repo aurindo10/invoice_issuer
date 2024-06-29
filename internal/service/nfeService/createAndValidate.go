@@ -32,7 +32,8 @@ type CreateAndValidateNFeServiceParams struct {
 }
 
 func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateNFeServiceParams) error {
-	now := time.Now().Format(time.RFC3339)
+	loc, _ := time.LoadLocation("America/Sao_Paulo")
+	now := time.Now().In(loc).Format("2006-01-02T15:04:05-07:00")
 	p.Ide.DhEmi = now
 	nfe := nfeentitie.NFe{
 		XMLName: xml.Name{Space: "http://www.portalfiscal.inf.br/nfe", Local: "NFe"},
@@ -63,7 +64,7 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 
 	repo := nfeidrepository.NewIdRepository()
 	generateNfeIduseCase := nfeusecase.NewGenerateID(repo)
-	nfeId, err := generateNfeIduseCase.Execute(nfeInfo)
+	nfeId, cnf, cdv, err := generateNfeIduseCase.Execute(nfeInfo)
 	nfe.InfNFe.Id = *nfeId
 	if err != nil {
 		return err
@@ -75,17 +76,19 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 		IndSinc: "1",
 		NFe:     nfe,
 	}
+	EnviNFe.NFe.InfNFe.Ide.CNF = *cnf
+	EnviNFe.NFe.InfNFe.Ide.CDV = *cdv
 
 	xmlData, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
 		return err
 	}
 	// cleanedXMLData := cleanXMLData(string(*xmlData))
-	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, *nfeId)
+	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, "NFe"+*nfeId)
 	if err != nil {
 		return err
 	}
-
+	nfe.InfNFe.Id = "NFe" + *nfeId
 	EnviNFe.NFe.Signature = sig
 	signedXml, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {

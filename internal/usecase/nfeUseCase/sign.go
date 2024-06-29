@@ -91,13 +91,16 @@ func signXML(privateKey *rsa.PrivateKey, data []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(signature), nil
 }
 
-func canonicalizeXML(xmlContent []byte) ([]byte, error) {
+func canonicalizeXML(input []byte) ([]byte, error) {
 	doc := etree.NewDocument()
-	if err := doc.ReadFromBytes(xmlContent); err != nil {
+	if err := doc.ReadFromBytes(input); err != nil {
 		return nil, err
 	}
-
-	doc.Indent(2)
+	doc.WriteSettings = etree.WriteSettings{
+		CanonicalEndTags: true,
+		CanonicalText:    true,
+		CanonicalAttrVal: true,
+	}
 	return doc.WriteToBytes()
 }
 
