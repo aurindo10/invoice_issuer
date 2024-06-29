@@ -209,7 +209,7 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 				"c_mun": "2110708",
 				"x_mun": "City Name",
 				"uf": "MA",
-				"cep": "12345678",
+				"cep": "65790000",
 				"c_pais": "1058",
 				"x_pais": "Brasil",
 				"fone": "123456789"
@@ -228,7 +228,7 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 				"c_mun": "2110708",
 				"x_mun": "Company City",
 				"uf": "MA",
-				"cep": "87654321",
+				"cep": "65790000",
 				"c_pais": "1058",
 				"x_pais": "Brasil",
 				"fone": "987654321"
