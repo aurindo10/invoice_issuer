@@ -50,7 +50,7 @@ func TestCreateXmlAndValidateService(t *testing.T) {
 				Fone:    "987654321", // Adicionado valor para fone
 			},
 			IE:  "12345678",
-			CRT: "3",
+			CRT: "1",
 		},
 		Ide: &nfeentitie.Ide{
 			CUF:      "21",
@@ -199,152 +199,154 @@ func TestCreateXmlAndValidateServiceEndToEnd(t *testing.T) {
 
 	// JSON dos parâmetros
 	jsonParams := `{
-		"client_info": {
-			"cnpj": "31918175000106",
-			"x_nome": "Client Name",
-			"ender_dest": {
-				"x_lgr": "Street Name",
-				"nro": "123",
-				"x_bairro": "Neighborhood",
-				"c_mun": "2110708",
-				"x_mun": "City Name",
-				"uf": "MA",
-				"cep": "65790000",
-				"c_pais": "1058",
-				"x_pais": "Brasil",
-				"fone": "123456789"
-			},
-			"ind_ie_dest": "1"
-		},
-		"company_info": {
-			"cnpj": "12494754000124",
-			"x_nome": "Company Name",
-			"x_fant": "Company Fantasy Name",
-			"ender_emit": {
-				"x_lgr": "Company Street",
-				"nro": "456",
-				"x_cpl": "Complement",
-				"x_bairro": "Company Neighborhood",
-				"c_mun": "2110708",
-				"x_mun": "Company City",
-				"uf": "MA",
-				"cep": "65790000",
-				"c_pais": "1058",
-				"x_pais": "Brasil",
-				"fone": "987654321"
-			},
-			"ie": "12345678",
-			"crt": "3"
-		},
-		"ide": {
-			"c_uf": "21",
-			"nat_op": "Venda",
-			"mod": "55",
-			"serie": "1",
-			"dh_emi": "2024-06-13T14:00:00-03:00",
-			"tp_nf": "1",
-			"id_dest": "1",
-			"nf_num":"1",
-			"c_mun_fg": "2110708",
-			"tp_imp": "1",
-			"tp_emis": "1",
-			"c_dv": "1",
-			"tp_amb": "2",
-			"fin_nfe": "1",
-			"ind_final": "1",
-			"ind_pres": "1",
-			"proc_emi": "0",
-			"ver_proc": "1.0"
-		},
-		"pagamento": [{
-			"ind_pag": "0",
-			"t_pag": "01",
-			"v_pag": "100.00"
-		}],
-		"produtos": [{
-			"n_item": "1",
-			"prod": {
-				"c_prod": "001",
-				"x_prod": "Product 1",
-				"ncm": "12345678",
-				"cfop": "5102",
-				"u_com": "UN",
-				"q_com": "1.00",
-				"v_un_com": "100.00",
-				"v_prod": "100.00",
-				"c_ean_trib": "1234567890123",
-				"u_trib": "UN",
-				"q_trib": "1.00",
-				"v_un_trib": "100.00",
-				"ind_tot": "1"
-			},
-			"imposto": {
-				"icms": {
-					"icms_sn_102": {
-						"orig": "0",
-						"csosn": "102"
-					}
-				},
-				"pis": {
-					"pis_outr": {
-						"cst": "99",
-						"v_bc": "0.00",
-						"p_pis": "0.00",
-						"v_pis": "0.00"
-					}
-				},
-				"cofins": {
-					"cofins_outr": {
-						"cst": "99",
-						"v_bc": "0.00",
-						"p_cofins": "0.00",
-						"v_cofins": "0.00"
-					}
-				}
-			}
-		}],
-		"total": {
-			"icms_tot": {
-				"v_bc": "0.00",
-				"v_icms": "0.00",
-				"v_icms_deson": "0.00",
-				"v_fcp_uf_dest": "0.00",
-				"v_icms_uf_dest": "0.00",
-				"v_icms_uf_remet": "0.00",
-				"v_fcp": "0.00",
-				"v_bc_st": "0.00",
-				"v_st": "0.00",
-				"v_fcp_st": "0.00",
-				"v_fcp_st_ret": "0.00",
-				"v_prod": "100.00",
-				"v_frete": "0.00",
-				"v_seg": "0.00",
-				"v_desc": "0.00",
-				"v_ii": "0.00",
-				"v_ipi": "0.00",
-				"v_ipi_devol": "0.00",
-				"v_pis": "0.00",
-				"v_cofins": "0.00",
-				"v_outro": "0.00",
-				"v_nf": "100.00",
-				"v_tot_trib": "0.00"
-			}
-		},
-		"frete": {
-			"mod_frete": "9"
-		},
-		"cobra": {
-			"fat": {
-				"n_fat": "1234",
-				"v_orig": "100.00",
-				"v_desc": "0.00",
-				"v_liq": "100.00"
-			}
-		},
-		"inf_adc": {
-			"inf_cpl": "Informações adicionais."
-		}
-	}`
+    "client_info": {
+        "cnpj": "31918175000106",
+        "x_nome": "Client Name",
+        "ender_dest": {
+            "x_lgr": "Street Name",
+            "nro": "123",
+            "x_bairro": "Neighborhood",
+            "c_mun": "2110708",
+            "x_mun": "City Name",
+            "uf": "MA",
+            "cep": "65790000",
+            "c_pais": "1058",
+            "x_pais": "Brasil",
+            "fone": "123456789"
+        },
+        "ind_ie_dest": "1",
+        "ie": "123456789"
+    },
+    "company_info": {
+        "cnpj": "12494754000124",
+        "x_nome": "Company Name",
+        "x_fant": "Company Fantasy Name",
+        "ender_emit": {
+            "x_lgr": "Company Street",
+            "nro": "456",
+            "x_cpl": "Complement",
+            "x_bairro": "Company Neighborhood",
+            "c_mun": "2110708",
+            "x_mun": "Company City",
+            "uf": "MA",
+            "cep": "65790000",
+            "c_pais": "1058",
+            "x_pais": "Brasil",
+            "fone": "987654321"
+        },
+        "ie": "12345678",
+        "crt": "1"
+    },
+    "ide": {
+        "c_uf": "21",
+        "nat_op": "Venda",
+        "mod": "55",
+        "serie": "1",
+        "dh_emi": "2024-06-13T14:00:00-03:00",
+        "tp_nf": "1",
+        "id_dest": "1",
+        "nf_num":"1",
+        "c_mun_fg": "2110708",
+        "tp_imp": "1",
+        "tp_emis": "1",
+        "c_dv": "1",
+        "tp_amb": "2",
+        "fin_nfe": "1",
+        "ind_final": "1",
+        "ind_pres": "1",
+        "proc_emi": "0",
+        "ver_proc": "1.0"
+    },
+    "pagamento": [{
+        "ind_pag": "0",
+        "t_pag": "01",
+        "v_pag": "100.00"
+    }],
+    "produtos": [{
+        "n_item": "1",
+        "prod": {
+            "c_prod": "001",
+            "x_prod": "Product 1",
+            "ncm": "12345678",
+            "cfop": "5102",
+            "u_com": "UN",
+            "q_com": "1.00",
+            "v_un_com": "100.00",
+            "v_prod": "100.00",
+            "c_ean": "SEM GTIN",
+            "c_ean_trib": "SEM GTIN",
+            "u_trib": "UN",
+            "q_trib": "1.00",
+            "v_un_trib": "100.00",
+            "ind_tot": "1"
+        },
+        "imposto": {
+            "icms": {
+                "icms_sn_102": {
+                    "orig": "0",
+                    "csosn": "102"
+                }
+            },
+            "pis": {
+                "pis_outr": {
+                    "cst": "49",
+                    "v_bc": "0.00",
+                    "p_pis": "0.00",
+                    "v_pis": "0.00"
+                }
+            },
+            "cofins": {
+                "cofins_outr": {
+                    "cst": "49",
+                    "v_bc": "0.00",
+                    "p_cofins": "0.00",
+                    "v_cofins": "0.00"
+                }
+            }
+        }
+    }],
+    "total": {
+        "icms_tot": {
+            "v_bc": "0.00",
+            "v_icms": "0.00",
+            "v_icms_deson": "0.00",
+            "v_fcp_uf_dest": "0.00",
+            "v_icms_uf_dest": "0.00",
+            "v_icms_uf_remet": "0.00",
+            "v_fcp": "0.00",
+            "v_bc_st": "0.00",
+            "v_st": "0.00",
+            "v_fcp_st": "0.00",
+            "v_fcp_st_ret": "0.00",
+            "v_prod": "100.00",
+            "v_frete": "0.00",
+            "v_seg": "0.00",
+            "v_desc": "0.00",
+            "v_ii": "0.00",
+            "v_ipi": "0.00",
+            "v_ipi_devol": "0.00",
+            "v_pis": "0.00",
+            "v_cofins": "0.00",
+            "v_outro": "0.00",
+            "v_nf": "100.00",
+            "v_tot_trib": "0.00"
+        }
+    },
+    "frete": {
+        "mod_frete": "9"
+    },
+    "cobra": {
+        "fat": {
+            "n_fat": "1234",
+            "v_orig": "100.00",
+            "v_desc": "0.00",
+            "v_liq": "100.00"
+        }
+    },
+    "inf_adc": {
+        "inf_cpl": "Informações adicionais."
+    }
+}`
 
 	request, err := http.NewRequest("POST", ts.URL, bytes.NewBuffer([]byte(jsonParams)))
 	if err != nil {
