@@ -78,17 +78,15 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	}
 	EnviNFe.NFe.InfNFe.Ide.CNF = *cnf
 	EnviNFe.NFe.InfNFe.Ide.CDV = *cdv
-
+	EnviNFe.NFe.InfNFe.Id = *nfeId
 	xmlData, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
 		return err
 	}
-	// cleanedXMLData := cleanXMLData(string(*xmlData))
-	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, "NFe"+*nfeId)
+	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, *nfeId)
 	if err != nil {
 		return err
 	}
-	nfe.InfNFe.Id = "NFe" + *nfeId
 	EnviNFe.NFe.Signature = sig
 	signedXml, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
 	if err != nil {
