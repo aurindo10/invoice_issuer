@@ -132,15 +132,18 @@ func SignXML(pfxPath string, password string, xmlContent []byte, id string) ([]b
 		return nil, nil, err
 	}
 
+	// Canonicalizar o XML
 	canonicalXML, err := canonicalizeXML(xmlContent)
 	if err != nil {
 		return nil, nil, err
 	}
 
+	// Calcular o valor do digest
 	digest := sha1.New()
 	digest.Write(canonicalXML)
 	digestValue := base64.StdEncoding.EncodeToString(digest.Sum(nil))
 
+	// Assinar o XML canonicalizado
 	signatureValue, err := signXML(privateKey, canonicalXML)
 	if err != nil {
 		return nil, nil, err
@@ -178,12 +181,14 @@ func SignXML(pfxPath string, password string, xmlContent []byte, id string) ([]b
 		},
 	}
 
-	signedXML := append(xmlContent, []byte(xml.Header)...)
-	signedXML = append(signedXML, canonicalXML...)
-	output, err := xml.MarshalIndent(sig, "", "  ")
+	// Serializar a assinatura para XML
+	signatureXML, err := xml.Marshal(sig)
 	if err != nil {
 		return nil, nil, err
 	}
-	fmt.Println(string(output))
-	return signedXML, &sig, nil
+
+	// Anexar a assinatura ao XML original
+	finalXML := append(xmlContent, signatureXML...)
+
+	return finalXML, &sig, nil
 }

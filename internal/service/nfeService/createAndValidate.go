@@ -13,6 +13,7 @@ import (
 	nfeentitie "github.com/aurindo10/invoice_issuer/internal/entities/nfeEntitie"
 	nfeidrepository "github.com/aurindo10/invoice_issuer/internal/repositories/nfeIdRepository"
 	nfeusecase "github.com/aurindo10/invoice_issuer/internal/usecase/nfeUseCase"
+	"github.com/aurindo10/invoice_issuer/pkg/utils"
 )
 
 type CreateAndValidateNFe struct {
@@ -79,13 +80,17 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	EnviNFe.NFe.InfNFe.Ide.CNF = *cnf
 	EnviNFe.NFe.InfNFe.Ide.CDV = *cdv
 	EnviNFe.NFe.InfNFe.Id = *nfeId
-	xmlData, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
+	xmlData, err := nfeusecase.GenerateBytesFromXml(EnviNFe.NFe.InfNFe)
 	if err != nil {
 		return err
 	}
-	_, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, *nfeId)
+	finalXml, sig, err := nfeusecase.SignXML("./S3D_8_240606145203.pfx", "12345678", *xmlData, *nfeId)
 	if err != nil {
 		return err
+	}
+	secondXmlToTry, error := utils.JoinXml(&finalXml)
+	if error != nil {
+		return error
 	}
 	EnviNFe.NFe.Signature = sig
 	signedXml, err := nfeusecase.GenerateBytesFromXml(EnviNFe)
@@ -105,11 +110,10 @@ func (c *CreateAndValidateNFe) CreateAndValidateNFeService(p *CreateAndValidateN
 	}
 
 	// Enviar para a Receita Federal
-	err = c.SendNFeToReceitaFederal(*signedXml)
+	err = c.SendNFeToReceitaFederal(*secondXmlToTry)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -121,7 +125,7 @@ func (c *CreateAndValidateNFe) SendNFeToReceitaFederal(xmlData []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to load certificate: %v", err)
 	}
-
+	println("vaiii", string(xmlData))
 	// Configuração do pool de CAs
 	caCertPool, err := x509.SystemCertPool()
 	if err != nil {
